@@ -178,28 +178,75 @@
         }
 
         .tale-badge {
-            padding: 8px 16px;
-            border-radius: 20px;
+            padding: 10px 20px;
+            border-radius: 25px;
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             border: 1px solid rgba(255, 255, 255, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tale-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .tale-badge.active {
+            border-color: currentColor;
+            box-shadow: 0 0 15px currentColor;
         }
 
         .tale-zoro {
-            background: rgba(255, 165, 0, 0.1);
+            background: rgba(255, 165, 0, 0.15);
             color: #FFA500;
         }
 
+        .tale-zoro:hover {
+            background: rgba(255, 165, 0, 0.3);
+        }
+
         .tale-octavia {
-            background: rgba(64, 224, 208, 0.1);
+            background: rgba(64, 224, 208, 0.15);
             color: #40E0D0;
         }
 
+        .tale-octavia:hover {
+            background: rgba(64, 224, 208, 0.3);
+        }
+
         .tale-elemental {
-            background: rgba(34, 139, 34, 0.1);
-            color: #228B22;
+            background: rgba(255, 69, 0, 0.15);
+            color: #FF4500;
+        }
+
+        .tale-elemental:hover {
+            background: rgba(255, 69, 0, 0.3);
+        }
+
+        /* Image loading animation */
+        .scene-image {
+            background: linear-gradient(135deg, rgba(25, 25, 112, 0.5) 0%, rgba(0, 0, 0, 0.5) 100%);
+        }
+
+        /* Smooth image reveal */
+        .scene-card img {
+            opacity: 0;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Enhanced filter button hover */
+        .filter-btn:hover:not(.active) {
+            background: rgba(255, 215, 0, 0.2);
+            border-color: rgba(255, 215, 0, 0.5);
         }
     </style>
 </head>
@@ -240,11 +287,11 @@
             <!-- Enhanced Statistics -->
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-number">63</div>
+                    <div class="stat-number">62</div>
                     <div class="text-gray-400">Total Scenes</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">5</div>
+                    <div class="stat-number">6</div>
                     <div class="text-gray-400">Categories</div>
                 </div>
                 <div class="stat-card">
@@ -256,6 +303,11 @@
                     <div class="text-gray-400">Possibilities</div>
                 </div>
             </div>
+
+            <a href="#scene-grid"
+                class="inline-block mt-6 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 shadow-lg shadow-yellow-500/30">
+                Explore All Resources
+            </a>
         </div>
     </section>
 
