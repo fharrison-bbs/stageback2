@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Working Concepts - BBS Originals LED Backdrop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
+    <script src="https://unpkg.com/splitting@1.0.6/dist/splitting.js"></script>
+    <script src="js/advanced_concepts.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/splitting@1.0.6/dist/splitting.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cosmic-blue: #191970;
+            --cosmic-gold: #FFD700;
+            --pure-white: #FFFFFF;
+            --midnight-black: #000000;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--cosmic-blue) 0%, var(--midnight-black) 100%);
+            min-height: 100vh;
+        }
+
+        .text-gradient {
+            background: linear-gradient(45deg, var(--cosmic-gold), var(--pure-white));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(25, 25, 112, 0.8);
+        }
+
+        .concept-section {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .demo-canvas {
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .control-panel {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 8px;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            background: rgba(255, 215, 0, 0.3);
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--cosmic-gold);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .glow-button {
+            background: linear-gradient(45deg, var(--cosmic-gold), #FFA500);
+            border: none;
+            color: var(--midnight-black);
+            font-weight: bold;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .glow-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5);
+        }
+
+        .concept-tabs {
+            display: flex;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 24px;
+        }
+
+        .concept-tab {
+            flex: 1;
+            padding: 16px 24px;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .concept-tab.active {
+            background: var(--cosmic-gold);
+            color: var(--midnight-black);
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .audio-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 16px;
+        }
+
+        .audio-visualizer {
+            height: 60px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            align-items: end;
+            justify-content: center;
+            padding: 8px;
+        }
+
+        .frequency-bar {
+            background: linear-gradient(to top, var(--cosmic-gold), #7DF9FF);
+            width: 4px;
+            margin: 0 2px;
+            border-radius: 2px;
+            transition: height 0.1s ease;
+        }
+
+        .hero-section {
+            background: url('resources/solaria-starfield.png') center/cover;
+            position: relative;
+        }
+
+        .hero-overlay {
+            background: linear-gradient(135deg, rgba(25, 25, 112, 0.8) 0%, rgba(0, 0, 0, 0.9) 100%);
+        }
+
+        .working-demo {
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .demo-info {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .demo-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--cosmic-gold);
+        }
+
+        .demo-info p {
+            margin-bottom: 0.5rem;
+        }
+
+        .demo-active .working-demo {
+            background: transparent;
+            border: none;
+        }
+    </style>
+</head>
+
+<body class="text-white">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 nav-blur">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold text-gradient">BBS Originals</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="index.html"
+                            class="text-white hover:text-gold-400 px-3 py-2 text-sm font-medium transition-colors">Home</a>
+                        <a href="concepts.html"
+                            class="text-gold-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Concepts</a>
+                        <a href="scenes.html"
+                            class="text-white hover:text-gold-400 px-3 py-2 text-sm font-medium transition-colors">Scenes</a>
+                        <a href="technical.html"
+                            class="text-white hover:text-gold-400 px-3 py-2 text-sm font-medium transition-colors">Technical</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section min-h-screen flex items-center justify-center relative">
+        <div class="hero-overlay absolute inset-0"></div>
+
+        <div class="relative z-10 text-center max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-16">
+            <h1 class="text-6xl md:text-8xl font-bold mb-6 text-gradient" data-splitting>
+                WORKING CONCEPTS
+            </h1>
+            <h2 class="text-3xl md:text-5xl font-light mb-8 text-white" data-splitting>
+                Functional Interactive Demos
+            </h2>
+
+            <div class="max-w-4xl mx-auto mb-12">
+                <p class="text-xl md:text-2xl text-gray-300 mb-6">
+                    Experience fully functional <span class="text-gradient font-semibold">interactive
+                        demonstrations</span> of our three revolutionary LED backdrop concepts.
+                </p>
+
+                <div class="text-lg text-gray-400">
+                    <span id="typed-text"></span><span class="typing-cursor">|</span>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                <button id="start-demos" class="glow-button">
+                    Start All Demos
+                </button>
+                <a href="#concepts"
+                    class="border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-black font-bold py-4 px-8 rounded-lg transition-all duration-300">
+                    Explore Concepts
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Working Concepts -->
+    <section id="concepts" class="py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="concept-section rounded-2xl p-8">
+                <h2 class="text-4xl font-bold text-gradient mb-8 text-center">Functional Interactive Demos</h2>
+
+                <!-- Digital Synapse -->
+                <div class="mb-16">
+                    <div class="grid lg:grid-cols-2 gap-12 items-start">
+                        <div>
+                            <h3 class="text-4xl font-bold text-gradient mb-6">Digital Synapse</h3>
+                            <p class="text-lg text-gray-300 mb-6">
+                                Fully functional neural network visualization with real-time particle physics and audio
+                                reactivity. Click anywhere to create particle explosions, use controls to adjust
+                                behavior.
+                            </p>
+
+                            <div class="space-y-4 mb-8">
+                                <div class="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+                                    <h4 class="text-lg font-semibold text-blue-300 mb-2">Interactive Features</h4>
+                                    <ul class="text-gray-300 space-y-1">
+                                        <li>• Click to create particle explosions</li>
+                                        <li>• Mouse movement affects particles</li>
+                                        <li>• Real-time physics simulation</li>
+                                        <li>• Dynamic color changes</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-gold-500/10 border border-gold-500/30 rounded-lg p-4">
+                                    <h4 class="text-lg font-semibold text-gold-300 mb-2">Production Ready</h4>
+                                    <p class="text-gray-300">This demo shows actual particle behavior that can be
+                                        implemented on LED walls with proper hardware acceleration.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="demo-canvas mb-6 demo-active">
+                                <div id="synapse-demo" class="w-full h-96"></div>
+                            </div>
+
+                            <div class="control-panel p-4 mb-4">
+                                <h4 class="text-lg font-semibold mb-4">Live Controls</h4>
+
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium mb-2">Particle Count: <span
+                                                id="particle-count">150</span></label>
+                                        <input type="range" id="particle-slider" class="slider w-full" min="50"
+                                            max="300" value="150">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium mb-2">Connection Distance: <span
+                                                id="connection-distance">80</span></label>
+                                        <input type="range" id="distance-slider" class="slider w-full" min="50"
+                                            max="120" value="80">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium mb-2">Mouse Influence: <span
+                                                id="mouse-influence">100</span></label>
+                                        <input type="range" id="mouse-slider" class="slider w-full" min="0" max="200"
+                                            value="100">
+                                    </div>
+                                </div>
+
+                                <button id="reset-synapse"
+                                    class="w-full mt-4 bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded transition-colors">
+                                    Reset System
+                                </button>
+                            </div>
+
+                            <div class="audio-visualizer flex items-end justify-center p-4">
+                                <div id="synapse-bars" class="flex items-end h-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cymatic Fluids -->
+                <div class="mb-16">
+                    <div class="grid lg:grid-cols-2 gap-12 items-start">
+                        <div>
+                            <div class="demo-canvas mb-6 demo-active">
+                                <div id="fluids-demo" class="w-full h-96"></div>
+                            </div>
+
+                            <div class="control-panel p-4">
+                                <h4 class="text-lg font-semibold mb-4">Fluid Dynamics</h4>
+
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium mb-2">Flow Speed: <span
+                                                id="flow-speed">5</span></label>
+                                        <input type="range" id="flow-slider" class="slider w-full" min="1" max="10"
+                                            value="5">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium mb-2">Viscosity: <span
+                                                id="viscosity-value">50</span></label>
+                                        <input type="range" id="viscosity-slider" class="slider w-full" min="10"
+                                            max="100" value="50">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium mb-2">Color Intensity: <span
+                                                id="color-intensity">80</span></label>
+                                        <input type="range" id="color-slider" class="slider w-full" min="0" max="100"
+                                            value="80">
+                                    </div>
+                                </div>
+
+                                <div class="audio-controls">
+                                    <button id="trigger-wave" class="glow-button">
+                                        Trigger Wave
+                                    </button>
+                                    <button id="reset-fluids"
+                                        class="bg-purple-500 hover:bg-purple-400 text-white font-bold py-2 px-4 rounded transition-colors">
+                                        Reset Fluids
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-4xl font-bold text-gradient mb-6">Cymatic Fluids</h3>
+                            <p class="text-lg text-gray-300 mb-6">
+                                Working fluid simulation with realistic liquid behavior. Particles flow and interact
+                                like actual fluids, creating organic patterns that respond to controls.
+                            </p>
+
+                            <div class="space-y-4 mb-8">
+                                <div class="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
+                                    <h4 class="text-lg font-semibold text-purple-300 mb-2">Fluid Simulation</h4>
+                                    <ul class="text-gray-300 space-y-1">
+                                        <li>• Pressure-based particle interaction</li>
+                                        <li>• Realistic viscosity effects</li>
+                                        <li>• Color mixing and blending</li>
+                                        <li>• Wave propagation</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-pink-500/10 border border-pink-500/30 rounded-lg p-4">
+                                    <h4 class="text-lg font-semibold text-pink-300 mb-2">Interactive Controls</h4>
+                                    <p class="text-gray-300">Adjust flow speed, viscosity, and color intensity in
+                                        real-time to create different fluid behaviors.</p>
+                                </div>
+
+                                <div class="bg-gold-500/10 border border-gold-500/30 rounded-lg p-4">
+                                    <h4 class="text-lg font-semibold text-gold-300 mb-2">Production Applications</h4>
+                                    <ul class="text-gray-300 space-y-1">
+                                        <li>• Octavia underwater sequences</li>
+                                        <li>• Mother healing transformation</li>
+                                        <li>• Lava transformation scenes</li>
+                                        <li>• Emotional depth moments</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Architecture of Sound -->
+                <div class="mb-16">
+                    <div class="grid lg:grid-cols-2 gap-12 items-start">
+                        <div>
+                            <h3 class="text-4xl font-bold text-gradient mb-6">Architecture of Sound</h3>
+                            <p class="text-lg text-gray-300 mb-6">
+                                3D tunnel effect with forced perspective and infinite depth. The tunnel responds to
+                                mouse movement and control adjustments, creating immersive depth illusions.
+                            </p>
+
+                            <div class="space-y-4 mb-8">
+                                <div class="bg-indigo-500/10 border border-indigo-500/30 rounded-lg p-4">
+                                    <h4 class="text-lg font-semibold text-indigo-300 mb-2">3D Tunnel System</h4>
+                                    <ul class="text-gray-300 space-y-1">
+                                        <li>• Forced perspective rendering</li>
+                                        <li>• Infinite depth illusion</li>
+                                        <li>• Dynamic lighting effects</li>
+                                        <li>• Mouse-controlled navigation</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
+                                    <h4 class="text-lg font-semibold text-purple-300 mb-2">Interactive Features</h4>
+                                    <p class="text-gray-300">Control tunnel speed, light intensity, and depth to create
+                                        different atmospheric effects.</p>
+                                </div>
+
+                                <div class="bg-gold-500/10 border border-gold-500/30 rounded-lg p-4">
+                                    <h4 class="text-lg font-semibold text-gold-300 mb-2">Production Applications</h4>
+                                    <ul class="text-gray-300 space-y-1">
+                                        <li>• Tornado storm sequences</li>
+                                        <li>• Shark attack danger zones</li>
+                                        <li>• Volcanic chaos moments</li>
+                                        <li>• All climactic scenes</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="demo-canvas mb-6 demo-active">
+                                <div id="tunnel-demo" class="w-full h-96"></div>
+                            </div>
+
+                            <div class="control-panel p-4">
+                                <h4 class="text-lg font-semibold mb-4">Tunnel Controls</h4>
+
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium mb-2">Flight Speed: <span
+                                                id="tunnel-speed">5</span></label>
+                                        <input type="range" id="speed-slider" class="slider w-full" min="1" max="10"
+                                            value="5">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium mb-2">Light Intensity: <span
+                                                id="light-intensity">70</span></label>
+                                        <input type="range" id="intensity-slider" class="slider w-full" min="0"
+                                            max="100" value="70">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium mb-2">Tunnel Depth: <span
+                                                id="tunnel-depth">8</span></label>
+                                        <input type="range" id="depth-slider" class="slider w-full" min="1" max="10"
+                                            value="8">
+                                    </div>
+                                </div>
+
+                                <div class="audio-controls">
+                                    <button id="trigger-silence"
+                                        class="bg-indigo-500 hover:bg-indigo-400 text-white font-bold py-2 px-4 rounded transition-colors">
+                                        Silence → Sound
+                                    </button>
+                                    <button id="reset-tunnel"
+                                        class="bg-red-500 hover:bg-red-400 text-white font-bold py-2 px-4 rounded transition-colors">
+                                        Reset Tunnel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <p class="text-gray-400">
+                    © 2024 BBS Originals LED Backdrop Concepts. Fully functional interactive demonstrations.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize text animations
+            Splitting();
+
+            // Animate hero title
+            anime({
+                targets: '[data-splitting] .char',
+                translateY: [100, 0],
+                opacity: [0, 1],
+                easing: 'easeOutExpo',
+                duration: 1400,
+                delay: anime.stagger(30)
+            });
+
+            // Typed.js for dynamic text
+            new Typed('#typed-text', {
+                strings: [
+                    'Click anywhere to create particle explosions',
+                    'Adjust controls to see real-time changes',
+                    'Experience working fluid dynamics',
+                    'Navigate 3D tunnel environments',
+                    'Fully functional interactive demos'
+                ],
+                typeSpeed: 50,
+                backSpeed: 30,
+                backDelay: 2000,
+                loop: true,
+                showCursor: false
+            });
+
+            // Initialize p5.js sketches
+            // Using the sketches defined in js/advanced_concepts.js
+            new p5(synapseSketch, 'synapse-demo');
+            new p5(fluidsSketch, 'fluids-demo');
+            new p5(tunnelSketch, 'tunnel-demo');
+
+            // Audio visualizer animation
+            function animateVisualizer() {
+                const bars = document.querySelectorAll('.frequency-bar');
+                if (bars.length > 0) {
+                    bars.forEach((bar, index) => {
+                        // random height simulation
+                        let height = 10 + Math.sin(Date.now() * 0.005 + index * 0.2) * 40 + Math.random() * 10;
+                        bar.style.height = Math.max(5, height) + 'px';
+                    });
+                    requestAnimationFrame(animateVisualizer);
+                }
+            }
+            // Create bars if they don't exist (the old code created them in setup)
+            const synapseBars = document.getElementById('synapse-bars');
+            if (synapseBars && synapseBars.children.length === 0) {
+                for (let i = 0; i < 32; i++) {
+                    const bar = document.createElement('div');
+                    bar.className = 'frequency-bar';
+                    bar.style.height = '10px';
+                    synapseBars.appendChild(bar);
+                }
+            }
+            animateVisualizer();
+
+
+            // Control updates logic
+            function updateControls() {
+                // Synapse controls
+                if (document.getElementById('particle-count')) document.getElementById('particle-count').textContent = document.getElementById('particle-slider').value;
+                if (document.getElementById('connection-distance')) document.getElementById('connection-distance').textContent = document.getElementById('distance-slider').value;
+                if (document.getElementById('mouse-influence')) document.getElementById('mouse-influence').textContent = document.getElementById('mouse-slider').value;
+
+                // Fluids controls
+                if (document.getElementById('flow-speed')) document.getElementById('flow-speed').textContent = document.getElementById('flow-slider').value;
+                if (document.getElementById('viscosity-value')) document.getElementById('viscosity-value').textContent = document.getElementById('viscosity-slider').value;
+                if (document.getElementById('color-intensity')) document.getElementById('color-intensity').textContent = document.getElementById('color-slider').value;
+
+                // Tunnel controls
+                if (document.getElementById('tunnel-speed')) document.getElementById('tunnel-speed').textContent = document.getElementById('speed-slider').value;
+                if (document.getElementById('light-intensity')) document.getElementById('light-intensity').textContent = document.getElementById('intensity-slider').value;
+                if (document.getElementById('tunnel-depth')) document.getElementById('tunnel-depth').textContent = document.getElementById('depth-slider').value;
+            }
+
+            // Control event listeners
+            document.querySelectorAll('.slider').forEach(slider => {
+                slider.addEventListener('input', updateControls);
+            });
+
+            // Initialize control values
+            updateControls();
+
+            // Scroll animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        anime({
+                            targets: entry.target,
+                            translateY: [50, 0],
+                            opacity: [0, 1],
+                            easing: 'easeOutQuart',
+                            duration: 800
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.concept-section').forEach(section => {
+                observer.observe(section);
+            });
+        });
+    </script>
+</body>
+
+</html>

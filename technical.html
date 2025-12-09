@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technical Specifications - BBS Originals LED Backdrop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cosmic-blue: #191970;
+            --cosmic-gold: #FFD700;
+            --pure-white: #FFFFFF;
+            --midnight-black: #000000;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--cosmic-blue) 0%, var(--midnight-black) 100%);
+            min-height: 100vh;
+        }
+        
+        .text-gradient {
+            background: linear-gradient(45deg, var(--cosmic-gold), var(--pure-white));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(25, 25, 112, 0.8);
+        }
+        
+        .tech-section {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+        
+        .spec-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .spec-card:hover {
+            border-color: rgba(255, 215, 0, 0.4);
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.1);
+        }
+        
+        .color-picker {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .color-picker:hover {
+            transform: scale(1.1);
+            border-color: var(--cosmic-gold);
+        }
+        
+        .setup-step {
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 4px solid var(--cosmic-gold);
+        }
+        
+        .chart-container {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 12px;
+        }
+        
+        .input-field {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            color: white;
+        }
+        
+        .input-field:focus {
+            border-color: var(--cosmic-gold);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2);
+        }
+        
+        .slider {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            background: rgba(255, 215, 0, 0.3);
+            border-radius: 3px;
+            outline: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--cosmic-gold);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .code-block {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            font-family: 'JetBrains Mono', monospace;
+        }
+    </style>
+</head>
+<body class="text-white">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 nav-blur">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold text-gradient">BBS Originals</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="index.html" class="text-white hover:text-gold-400 px-3 py-2 text-sm font-medium transition-colors">Home</a>
+                        <a href="concepts.html" class="text-white hover:text-gold-400 px-3 py-2 text-sm font-medium transition-colors">Concepts</a>
+                        <a href="scenes.html" class="text-white hover:text-gold-400 px-3 py-2 text-sm font-medium transition-colors">Scenes</a>
+                        <a href="technical.html" class="text-gold-400 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Technical</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-24 pb-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-5xl md:text-7xl font-bold text-gradient mb-6">Technical Specifications</h1>
+            <p class="text-xl text-gray-300 max-w-4xl mx-auto">
+                Complete setup guide, technical requirements, and interactive tools for LED backdrop implementation. Everything your production team needs for flawless execution.
+            </p>
+        </div>
+    </section>
+
+    <!-- Display Specifications -->
+    <section class="py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="tech-section rounded-2xl p-8 mb-12">
+                <h2 class="text-3xl font-bold text-gradient mb-8">LED Display Specifications</h2>
+                
+                <div class="grid lg:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-bold text-white mb-6">Physical Dimensions</h3>
+                        <div class="space-y-4">
+                            <div class="spec-card rounded-lg p-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-400">Width:</span>
+                                    <span class="text-white font-bold">5 meters</span>
+                                </div>
+                            </div>
+                            <div class="spec-card rounded-lg p-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-400">Height:</span>
+                                    <span class="text-white font-bold">3 meters</span>
+                                </div>
+                            </div>
+                            <div class="spec-card rounded-lg p-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-400">Aspect Ratio:</span>
+                                    <span class="text-white font-bold">16:9 (1.66:1)</span>
+                                </div>
+                            </div>
+                            <div class="spec-card rounded-lg p-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-400">Viewing Distance:</span>
+                                    <span class="text-white font-bold">5-50 meters</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-bold text-white mb-6">Technical Requirements</h3>
+                        <div class="space-y-4">
+                            <div class="spec-card rounded-lg p-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-400">Resolution:</span>
+                                    <span class="text-white font-bold">1920×1080 (HD)</span>
+                                </div>
+                            </div>
+                            <div class="spec-card rounded-lg p-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-400">Refresh Rate:</span>
+                                    <span class="text-white font-bold">60fps minimum</span>
+                                </div>
+                            </div>
+                            <div class="spec-card rounded-lg p-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-400">Color Depth:</span>
+                                    <span class="text-white font-bold">10-bit (1B+ colors)</span>
+                                </div>
+                            </div>
+                            <div class="spec-card rounded-lg p-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-400">Contrast Ratio:</span>
+                                    <span class="text-white font-bold">7:1 minimum</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Color Palette Generator -->
+    <section class="py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="tech-section rounded-2xl p-8 mb-12">
+                <h2 class="text-3xl font-bold text-gradient mb-8">Interactive Color Palette Generator</h2>
+                
+                <div class="grid lg:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-bold text-white mb-6">Scene Color Picker</h3>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2">Select Scene</label>
+                            <select id="scene-selector" class="input-field w-full px-4 py-3 rounded-lg">
+                                <option value="">Choose a scene...</option>
+                                <option value="T1S1-1">Golden Savannah Sunrise</option>
+                                <option value="T1S1-2">Animal Gathering Circle</option>
+                                <option value="T1S1-3">The Tornado Approaches</option>
+                                <option value="T2S1-1">Water Surface from Below</option>
+                                <option value="T3S1-1">Lush Kilauea Landscape</option>
+                                <option value="T3S3-2">Glowing Lava Channels</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2">Custom Colors</label>
+                            <div class="grid grid-cols-4 gap-4">
+                                <div class="text-center">
+                                    <input type="color" id="color1" class="color-picker w-full mb-2" value="#FFD700">
+                                    <label class="text-xs text-gray-400">Primary</label>
+                                </div>
+                                <div class="text-center">
+                                    <input type="color" id="color2" class="color-picker w-full mb-2" value="#CC5500">
+                                    <label class="text-xs text-gray-400">Secondary</label>
+                                </div>
+                                <div class="text-center">
+                                    <input type="color" id="color3" class="color-picker w-full mb-2" value="#8B4513">
+                                    <label class="text-xs text-gray-400">Accent</label>
+                                </div>
+                                <div class="text-center">
+                                    <input type="color" id="color4" class="color-picker w-full mb-2" value="#F0E68C">
+                                    <label class="text-xs text-gray-400">Highlight</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Brightness Adjustment</label>
+                                <input type="range" id="brightness-slider" class="slider w-full" min="0" max="100" value="100">
+                                <div class="flex justify-between text-xs text-gray-400 mt-1">
+                                    <span>Dim</span>
+                                    <span>Bright</span>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Saturation</label>
+                                <input type="range" id="saturation-slider" class="slider w-full" min="0" max="100" value="100">
+                                <div class="flex justify-between text-xs text-gray-400 mt-1">
+                                    <span>Muted</span>
+                                    <span>Vibrant</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-bold text-white mb-6">Live Preview</h3>
+                        
+                        <div class="bg-black rounded-lg p-6 mb-6">
+                            <div id="color-preview" class="w-full h-32 rounded-lg mb-4" style="background: linear-gradient(45deg, #FFD700, #CC5500, #8B4513, #F0E68C);"></div>
+                            
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <span class="text-gray-400">HEX Values:</span>
+                                    <div id="hex-values" class="font-mono text-white mt-1">
+                                        <div>#FFD700</div>
+                                        <div>#CC5500</div>
+                                        <div>#8B4513</div>
+                                        <div>#F0E68C</div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="text-gray-400">RGB Values:</span>
+                                    <div id="rgb-values" class="font-mono text-white mt-1">
+                                        <div>rgb(255, 215, 0)</div>
+                                        <div>rgb(204, 85, 0)</div>
+                                        <div>rgb(139, 69, 19)</div>
+                                        <div>rgb(240, 230, 140)</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <button id="export-palette" class="w-full bg-gold-500 hover:bg-gold-400 text-black font-bold py-3 px-4 rounded-lg transition-colors">
+                                Export Palette
+                            </button>
+                            <button id="reset-colors" class="w-full border border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-black font-bold py-3 px-4 rounded-lg transition-colors">
+                                Reset to Default
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Setup Guide -->
+    <section class="py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="tech-section rounded-2xl p-8 mb-12">
+                <h2 class="text-3xl font-bold text-gradient mb-8">Production Setup Guide</h2>
+                
+                <div class="space-y-6">
+                    <div class="setup-step rounded-lg p-6">
+                        <h3 class="text-xl font-bold text-white mb-4">Step 1: Hardware Configuration</h3>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="text-lg font-semibold text-gold-300 mb-3">LED Wall Setup</h4>
+                                <ul class="text-gray-300 space-y-2">
+                                    <li>• Ensure 3m × 5m physical dimensions</li>
+                                    <li>• Verify 16:9 aspect ratio compliance</li>
+                                    <li>• Test pixel pitch for viewing distance</li>
+                                    <li>• Calibrate brightness for theater lighting</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-semibold text-gold-300 mb-3">Media Server</h4>
+                                <ul class="text-gray-300 space-y-2">
+                                    <li>• Configure for 1920×1080 output</li>
+                                    <li>• Set refresh rate to 60fps minimum</li>
+                                    <li>• Enable 10-bit color processing</li>
+                                    <li>• Test audio input synchronization</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="setup-step rounded-lg p-6">
+                        <h3 class="text-xl font-bold text-white mb-4">Step 2: Content Preparation</h3>
+                        <div class="code-block rounded-lg p-4 mb-4">
+                            <div class="text-sm text-gray-300">
+                                <div class="text-gold-300"># Render Settings</div>
+                                <div>Resolution: 1920×1080</div>
+                                <div>Frame Rate: 60fps</div>
+                                <div>Color Space: Rec.2020</div>
+                                <div>Bit Depth: 10-bit</div>
+                                <div>Codec: H.265/HEVC</div>
+                            </div>
+                        </div>
+                        <p class="text-gray-300">
+                            All content must be rendered at full HD resolution with high color depth to prevent banding in gradient transitions. Use pure black (#000000) for maximum contrast and depth.
+                        </p>
+                    </div>
+                    
+                    <div class="setup-step rounded-lg p-6">
+                        <h3 class="text-xl font-bold text-white mb-4">Step 3: Audio Integration</h3>
+                        <div class="grid md:grid-cols-3 gap-6">
+                            <div class="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+                                <h4 class="text-lg font-semibold text-blue-300 mb-2">Digital Synapse</h4>
+                                <p class="text-gray-300 text-sm">Connect audio input to particle system. Map bass frequencies (20-200Hz) to explosions, treble (2k-20kHz) to sparkles.</p>
+                            </div>
+                            <div class="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
+                                <h4 class="text-lg font-semibold text-purple-300 mb-2">Cymatic Fluids</h4>
+                                <p class="text-gray-300 text-sm">Link tempo detection to viscosity parameters. Map emotional analysis to color gradient shifts.</p>
+                            </div>
+                            <div class="bg-indigo-500/10 border border-indigo-500/30 rounded-lg p-4">
+                                <h4 class="text-lg font-semibold text-indigo-300 mb-2">Architecture</h4>
+                                <p class="text-gray-300 text-sm">Sync tunnel lighting to beat detection. Map overall intensity to flight speed through tunnel.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Performance Analysis -->
+    <section class="py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="tech-section rounded-2xl p-8 mb-12">
+                <h2 class="text-3xl font-bold text-gradient mb-8">Performance Analysis</h2>
+                
+                <div class="grid lg:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-bold text-white mb-6">Concept Complexity</h3>
+                        <div class="chart-container p-4">
+                            <div id="complexity-chart" style="height: 300px;"></div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-bold text-white mb-6">Color Distribution</h3>
+                        <div class="chart-container p-4">
+                            <div id="color-chart" style="height: 300px;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8">
+                    <h3 class="text-xl font-bold text-white mb-6">System Requirements</h3>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="spec-card rounded-lg p-6">
+                            <h4 class="text-lg font-semibold text-gold-300 mb-4">Minimum Specs</h4>
+                            <ul class="text-gray-300 space-y-2">
+                                <li>• GPU: GTX 1060 / RX 580</li>
+                                <li>• RAM: 16GB DDR4</li>
+                                <li>• Storage: 500GB SSD</li>
+                                <li>• Network: Gigabit Ethernet</li>
+                            </ul>
+                        </div>
+                        <div class="spec-card rounded-lg p-6">
+                            <h4 class="text-lg font-semibold text-gold-300 mb-4">Recommended Specs</h4>
+                            <ul class="text-gray-300 space-y-2">
+                                <li>• GPU: RTX 3070 / RX 6700 XT</li>
+                                <li>• RAM: 32GB DDR4</li>
+                                <li>• Storage: 1TB NVMe SSD</li>
+                                <li>• Network: 10 Gigabit Ethernet</li>
+                            </ul>
+                        </div>
+                        <div class="spec-card rounded-lg p-6">
+                            <h4 class="text-lg font-semibold text-gold-300 mb-4">Performance Metrics</h4>
+                            <ul class="text-gray-300 space-y-2">
+                                <li>• Latency: < 16ms</li>
+                                <li>• Frame Rate: 60fps stable</li>
+                                <li>• Color Accuracy: ΔE < 2</li>
+                                <li>• Audio Sync: ±1ms</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <p class="text-gray-400">
+                    © 2024 BBS Originals LED Backdrop Concepts. Technical specifications for professional production.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Color palette functionality
+        const sceneColors = {
+            'T1S1-1': ['#FFD300', '#CC5500', '#8B4513', '#F0E68C'],
+            'T1S1-2': ['#CC5500', '#FFD300', '#8B4513', '#D2B48C'],
+            'T1S1-3': ['#556B2F', '#4B0082', '#696969', '#1C1C1C'],
+            'T2S1-1': ['#40E0D0', '#87CEEB', '#FF6347', '#8B4513'],
+            'T3S1-1': ['#228B22', '#50C878', '#FF8C00', '#FF6347'],
+            'T3S3-2': ['#FF4500', '#FF8C00', '#696969', '#1C1C1C']
+        };
+        
+        function updateColorPreview() {
+            const color1 = document.getElementById('color1').value;
+            const color2 = document.getElementById('color2').value;
+            const color3 = document.getElementById('color3').value;
+            const color4 = document.getElementById('color4').value;
+            
+            const preview = document.getElementById('color-preview');
+            preview.style.background = `linear-gradient(45deg, ${color1}, ${color2}, ${color3}, ${color4})`;
+            
+            // Update hex values
+            document.getElementById('hex-values').innerHTML = `
+                <div>${color1}</div>
+                <div>${color2}</div>
+                <div>${color3}</div>
+                <div>${color4}</div>
+            `;
+            
+            // Update RGB values
+            const rgb1 = hexToRgb(color1);
+            const rgb2 = hexToRgb(color2);
+            const rgb3 = hexToRgb(color3);
+            const rgb4 = hexToRgb(color4);
+            
+            document.getElementById('rgb-values').innerHTML = `
+                <div>rgb(${rgb1.r}, ${rgb1.g}, ${rgb1.b})</div>
+                <div>rgb(${rgb2.r}, ${rgb2.g}, ${rgb2.b})</div>
+                <div>rgb(${rgb3.r}, ${rgb3.g}, ${rgb3.b})</div>
+                <div>rgb(${rgb4.r}, ${rgb4.g}, ${rgb4.b})</div>
+            `;
+        }
+        
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+        
+        // Scene selector
+        document.getElementById('scene-selector').addEventListener('change', function(e) {
+            const sceneId = e.target.value;
+            if (sceneId && sceneColors[sceneId]) {
+                const colors = sceneColors[sceneId];
+                document.getElementById('color1').value = colors[0];
+                document.getElementById('color2').value = colors[1];
+                document.getElementById('color3').value = colors[2];
+                document.getElementById('color4').value = colors[3];
+                updateColorPreview();
+            }
+        });
+        
+        // Color picker event listeners
+        document.querySelectorAll('.color-picker').forEach(picker => {
+            picker.addEventListener('change', updateColorPreview);
+        });
+        
+        // Export palette
+        document.getElementById('export-palette').addEventListener('click', function() {
+            const colors = [
+                document.getElementById('color1').value,
+                document.getElementById('color2').value,
+                document.getElementById('color3').value,
+                document.getElementById('color4').value
+            ];
+            
+            const paletteData = {
+                colors: colors,
+                timestamp: new Date().toISOString(),
+                brightness: document.getElementById('brightness-slider').value,
+                saturation: document.getElementById('saturation-slider').value
+            };
+            
+            const blob = new Blob([JSON.stringify(paletteData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'led-backdrop-palette.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+        
+        // Reset colors
+        document.getElementById('reset-colors').addEventListener('click', function() {
+            document.getElementById('color1').value = '#FFD700';
+            document.getElementById('color2').value = '#CC5500';
+            document.getElementById('color3').value = '#8B4513';
+            document.getElementById('color4').value = '#F0E68C';
+            document.getElementById('brightness-slider').value = 100;
+            document.getElementById('saturation-slider').value = 100;
+            updateColorPreview();
+        });
+        
+        // Initialize charts
+        function initializeCharts() {
+            // Complexity chart
+            const complexityChart = echarts.init(document.getElementById('complexity-chart'));
+            const complexityOption = {
+                backgroundColor: 'transparent',
+                textStyle: { color: '#ffffff' },
+                tooltip: {
+                    trigger: 'item',
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    borderColor: '#FFD700',
+                    textStyle: { color: '#ffffff' }
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['Digital Synapse', 'Cymatic Fluids', 'Architecture'],
+                    axisLine: { lineStyle: { color: '#FFD700' } },
+                    axisLabel: { color: '#ffffff' }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: 'Complexity Score',
+                    axisLine: { lineStyle: { color: '#FFD700' } },
+                    axisLabel: { color: '#ffffff' },
+                    nameTextStyle: { color: '#ffffff' }
+                },
+                series: [{
+                    data: [85, 70, 90],
+                    type: 'bar',
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#FFD700' },
+                            { offset: 1, color: '#191970' }
+                        ])
+                    }
+                }]
+            };
+            complexityChart.setOption(complexityOption);
+            
+            // Color distribution chart
+            const colorChart = echarts.init(document.getElementById('color-chart'));
+            const colorOption = {
+                backgroundColor: 'transparent',
+                textStyle: { color: '#ffffff' },
+                tooltip: {
+                    trigger: 'item',
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    borderColor: '#FFD700',
+                    textStyle: { color: '#ffffff' }
+                },
+                series: [{
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    data: [
+                        { value: 35, name: 'Warm Colors', itemStyle: { color: '#FFD700' } },
+                        { value: 25, name: 'Cool Colors', itemStyle: { color: '#40E0D0' } },
+                        { value: 20, name: 'Earth Tones', itemStyle: { color: '#8B4513' } },
+                        { value: 20, name: 'Accent Colors', itemStyle: { color: '#FF6347' } }
+                    ],
+                    label: { color: '#ffffff' },
+                    labelLine: { lineStyle: { color: '#FFD700' } }
+                }]
+            };
+            colorChart.setOption(colorOption);
+        }
+        
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateColorPreview();
+            initializeCharts();
+            
+            // Animate sections on scroll
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        anime({
+                            targets: entry.target,
+                            translateY: [50, 0],
+                            opacity: [0, 1],
+                            easing: 'easeOutQuart',
+                            duration: 800
+                        });
+                    }
+                });
+            }, observerOptions);
+            
+            document.querySelectorAll('.tech-section').forEach(section => {
+                observer.observe(section);
+            });
+        });
+    </script>
+</body>
+</html>
