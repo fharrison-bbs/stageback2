@@ -14,111 +14,17 @@ void main() {
 }
 `;
 
-// Digital Synapse Fragment Shader (Neural Network / Energy)
-// Uses a voronoi-like or distance field approach + noise
-const synapseFragShader = `
+// Cosmic Portal Shader (replaces Synapse)
+// A swirling, glowing portal with energy beams
+const portalFragShader = `
 precision mediump float;
 varying vec2 vTexCoord;
 uniform float uTime;
 uniform vec2 uResolution;
 uniform vec2 uMouse;
-uniform float uParticles;
-uniform float uConnectionDist;
-
-// Simplex noise function
-vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
-float snoise(vec2 v){
-  const vec4 C = vec4(0.211324865405187, 0.366025403784439,
-           -0.577350269189626, 0.024390243902439);
-  vec2 i  = floor(v + dot(v, C.yy) );
-  vec2 x0 = v -   i + dot(i, C.xx);
-  vec2 i1;
-  i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-  vec4 x12 = x0.xyxy + C.xxzz;
-  x12.xy -= i1;
-  i = mod(i, 289.0);
-  vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
-  + i.x + vec3(0.0, i1.x, 1.0 ));
-  vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
-  m = m*m ;
-  m = m*m ;
-  vec3 x = 2.0 * fract(p * C.www) - 1.0;
-  vec3 h = abs(x) - 0.5;
-  vec3 ox = floor(x + 0.5);
-  vec3 a0 = x - ox;
-  m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
-  vec3 g;
-  g.x  = a0.x  * x0.x  + h.x  * x0.y;
-  g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-  return 130.0 * dot(m, g);
-}
-
-void main() {
-    vec2 st = gl_FragCoord.xy / uResolution.xy;
-    st.x *= uResolution.x / uResolution.y;
-    
-    vec3 color = vec3(0.0);
-    
-    // Neural web effect using noise and distance fields
-    vec2 grid = st * 5.0;
-    vec2 i_st = floor(grid);
-    vec2 f_st = fract(grid);
-    
-    float m_dist = 1.0;  // minimum distance
-    
-    // Iterate through neighbors to find closest points (cells)
-    for (int y= -1; y <= 1; y++) {
-        for (int x= -1; x <= 1; x++) {
-            vec2 neighbor = vec2(float(x),float(y));
-            vec2 point = vec2(0.0);
-            
-            // Animate points
-            point = 0.5 + 0.5*sin(uTime * 0.5 + 6.2831*point);
-            
-            // Randomize per cell
-            vec2 rand = vec2(snoise(i_st + neighbor + vec2(uTime*0.1)), snoise(i_st + neighbor + vec2(uTime*0.1 + 100.0)));
-            point = 0.5 + 0.3 * rand;
-
-            vec2 diff = neighbor + point - f_st;
-            float dist = length(diff);
-            
-            m_dist = min(m_dist, dist);
-        }
-    }
-    
-    // Draw edges/connections ('synapses')
-    float edge = 1.0 - smoothstep(0.05, 0.06 + (uConnectionDist * 0.001), m_dist);
-    // Glow
-    float glow = 1.0 / (m_dist * 5.0);
-    
-    vec3 neuronColor = vec3(0.2, 0.5, 1.0); // Blueish
-    if (uMouse.x > 0.0) {
-       float dMouse = distance(st, uMouse/uResolution * vec2(uResolution.x/uResolution.y, 1.0));
-       if (dMouse < 0.3) {
-           neuronColor += vec3(1.0, 0.8, 0.0) * (1.0 - dMouse/0.3); // Gold glow near mouse
-       }
-    }
-    
-    color += glow * neuronColor;
-    
-    // Add pulsing impulses
-    float pulse = sin(uTime * 3.0 - m_dist * 10.0) * 0.5 + 0.5;
-    color += vec3(pulse) * 0.2 * vec3(0.5, 0.8, 1.0);
-
-    gl_FragColor = vec4(color, 1.0);
-}
-`;
-
-// Cymatic Fluids Fragment Shader
-// Domain Warping based
-const fluidsFragShader = `
-precision mediump float;
-uniform float uTime;
-uniform vec2 uResolution;
-uniform vec2 uMouse;
-uniform float uFlowSpeed;
-uniform float uViscosity;
-uniform float uColorIntensity;
+uniform float uIntensity; // controlled by particle count slider
+uniform float uSpeed; // controlled by connection distance slider
+uniform float uZoom; // controlled by mouse influence slider
 
 // Simplex noise
 vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
@@ -148,68 +54,132 @@ float snoise(vec2 v){
   return 130.0 * dot(m, g);
 }
 
-float fbm(vec2 st) {
-    float v = 0.0;
-    float a = 0.5;
-    vec2 shift = vec2(100.0);
-    // Rotate to reduce axial bias
-    mat2 rot = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.50));
-    for (int i = 0; i < 5; ++i) {
-        v += a * snoise(st);
-        st = rot * st * 2.0 + shift;
-        a *= 0.5;
-    }
-    return v;
-}
-
 void main() {
     vec2 st = gl_FragCoord.xy / uResolution.xy;
+    st = st * 2.0 - 1.0;
     st.x *= uResolution.x / uResolution.y;
-
-    float time = uTime * (uFlowSpeed * 0.1);
     
-    vec2 q = vec2(0.);
-    q.x = fbm( st + 0.00*time);
-    q.y = fbm( st + vec2(1.0));
-
-    vec2 r = vec2(0.);
-    r.x = fbm( st + 1.0*q + vec2(1.7,9.2)+ 0.15*time );
-    r.y = fbm( st + 1.0*q + vec2(8.3,2.8)+ 0.126*time);
-
-    float f = fbm(st+r);
-
+    // Zoom and rotation
+    float zoom = 1.0 + uZoom;
+    st /= zoom;
+    
+    float ang = atan(st.y, st.x);
+    float len = length(st);
+    
+    // Portal swirl
+    float time = uTime * (uSpeed + 0.5) * 0.5;
+    
+    // Spiral noise
+    float n1 = snoise(vec2(len * 5.0 - time * 2.0, ang * 2.0));
+    float n2 = snoise(vec2(len * 10.0 + time, ang * 4.0 + time));
+    
+    // Glow core
+    float core = 0.15 / (len + 0.1 * n1);
+    
+    // Energy beams
+    float beams = smoothstep(0.5, 0.8, snoise(vec2(ang * 8.0 + time, len * 2.0)));
+    
     // Color mixing
-    vec3 color = mix(vec3(0.101961,0.619608,0.666667),
-                vec3(0.666667,0.666667,0.498039),
-                clamp((f*f)*4.0,0.0,1.0));
-
-    color = mix(color,
-                vec3(0,0,0.164706),
-                clamp(length(q),0.0,1.0));
-
-    color = mix(color,
-                vec3(0.666667,1,1),
-                clamp(length(r.x),0.0,1.0));
-                
-    // Mouse interaction - adds a swirl of bright color
-    if (uMouse.x > 0.0) {
-        float d = distance(st, uMouse/uResolution * vec2(uResolution.x/uResolution.y, 1.0));
-        color += vec3(1.0, 0.5, 0.0) * smoothstep(0.2, 0.0, d) * 0.5;
-    }
-
-    // Viscosity affects contrast/smoothness
-    float contrast = uViscosity / 50.0;
-    color = pow(color, vec3(contrast));
+    vec3 c1 = vec3(0.1, 0.0, 0.4); // Deep purple
+    vec3 c2 = vec3(1.0, 0.8, 0.2); // Gold
+    vec3 c3 = vec3(0.0, 0.5, 1.0); // Cyan
     
-    // Intensity
-    color *= (uColorIntensity / 50.0);
+    vec3 color = mix(c1, c3, len + n1 * 0.2);
+    color += c2 * core * (uIntensity * 2.0);
+    color += c3 * beams * 0.5;
+    
+    // Mouse interaction - adds local disturbance
+    vec2 mouse = uMouse / uResolution * 2.0 - 1.0;
+    mouse.x *= uResolution.x / uResolution.y;
+    mouse.y *= -1.0;
+    
+    float dMouse = distance(st, mouse);
+    if(dMouse < 0.5) {
+        color += c2 * (0.5 - dMouse) * 2.0;
+    }
 
     gl_FragColor = vec4(color, 1.0);
 }
 `;
 
-// Architecture of Sound (Tunnel) Fragment Shader
-// Raymarching
+// Realistic Water Shader
+const waterFragShader = `
+precision mediump float;
+uniform float uTime;
+uniform vec2 uResolution;
+uniform vec2 uMouse;
+uniform float uSpeed;
+uniform float uBlue;
+uniform float uComplexity;
+
+// Tiled noise
+vec2 hash( vec2 p ) {
+	p = vec2( dot(p,vec2(127.1,311.7)), dot(p,vec2(269.5,183.3)) );
+	return -1.0 + 2.0*fract(sin(p)*43758.5453123);
+}
+
+float noise( in vec2 p ) {
+    const float K1 = 0.366025404; // (sqrt(3)-1)/2;
+    const float K2 = 0.211324865; // (3-sqrt(3))/6;
+
+	vec2 i = floor( p + (p.x+p.y)*K1 );
+	vec2 a = p - i + (i.x+i.y)*K2;
+	vec2 o = step(a.yx,a.xy);    
+	vec2 b = a - o + K2;
+	vec2 c = a - 1.0 + 2.0*K2;
+
+	vec3 h = max( 0.5-vec3(dot(a,a), dot(b,b), dot(c,c) ), 0.0 );
+	vec3 n = h*h*h*h*vec3( dot(a,hash(i+0.0)), dot(b,hash(i+o)), dot(c,hash(i+1.0)));
+
+	return dot( n, vec3(70.0) );
+}
+
+void main() {
+    vec2 uv = gl_FragCoord.xy / uResolution.xy;
+    vec2 p = -1.0 + 2.0 * uv;
+    p.x *= uResolution.x / uResolution.y;
+    
+    float time = uTime * uSpeed * 0.5;
+    
+    vec2 uv_water = p * (uComplexity + 2.0);
+    
+    // Create water-like caustic patterns using domain warping
+    vec2 q = vec2(0.);
+    q.x = noise(uv_water + 0.0 * time);
+    q.y = noise(uv_water + vec2(1.0));
+    
+    vec2 r = vec2(0.);
+    r.x = noise(uv_water + 1.0 * q + vec2(1.7, 9.2) + 0.15 * time);
+    r.y = noise(uv_water + 1.0 * q + vec2(8.3, 2.8) + 0.126 * time);
+    
+    float f = noise(uv_water + r);
+    
+    // Deep blue water palette
+    vec3 c1 = vec3(0.0, 0.3, 0.7) * uBlue; // Deep Blue
+    vec3 c2 = vec3(0.0, 0.8, 1.0) * uBlue; // Light Blue
+    vec3 c3 = vec3(1.0, 1.0, 1.0); // White highlights
+    
+    vec3 color = mix(c1, c2, f);
+    color = mix(color, c3, smoothstep(0.8, 1.0, f));
+    
+    // Mouse ripples (simplified)
+    vec2 mouse = uMouse / uResolution;
+    mouse.y = 1.0 - mouse.y; // Invert Y just in case of coordinate mismatch
+    float d = distance(uv, mouse);
+    
+    // Add ripple effect
+    float ripple = sin(d * 50.0 - uTime * 10.0) * exp(-d * 5.0);
+    color += vec3(ripple) * 0.2;
+    
+    // Specular highlights
+    float spec = pow(max(0.0, dot(vec3(f, f, 1.0), vec3(0.0, 0.0, 1.0))), 10.0);
+    color += spec * 0.5;
+
+    gl_FragColor = vec4(color, 1.0);
+}
+`;
+
+// Tunnel (Geometric Portal) Shader
 const tunnelFragShader = `
 precision mediump float;
 uniform float uTime;
@@ -218,155 +188,165 @@ uniform float uSpeed;
 uniform float uLightIntensity;
 uniform float uDepth;
 
-// ... (Raymarching logic to be added)
-// Simplex noise for texture
-vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
-float snoise(vec2 v){
-  const vec4 C = vec4(0.211324865405187, 0.366025403784439,
-           -0.577350269189626, 0.024390243902439);
-  vec2 i  = floor(v + dot(v, C.yy) );
-  vec2 x0 = v -   i + dot(i, C.xx);
-  vec2 i1;
-  i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-  vec4 x12 = x0.xyxy + C.xxzz;
-  x12.xy -= i1;
-  i = mod(i, 289.0);
-  vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
-  + i.x + vec3(0.0, i1.x, 1.0 ));
-  vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
-  m = m*m ;
-  m = m*m ;
-  vec3 x = 2.0 * fract(p * C.www) - 1.0;
-  vec3 h = abs(x) - 0.5;
-  vec3 ox = floor(x + 0.5);
-  vec3 a0 = x - ox;
-  m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
-  vec3 g;
-  g.x  = a0.x  * x0.x  + h.x  * x0.y;
-  g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-  return 130.0 * dot(m, g);
-}
-
-
 void main() {
     vec2 p = (gl_FragCoord.xy * 2.0 - uResolution) / min(uResolution.x, uResolution.y);
     
-    // Tunnel projection
-    float r = length(p);
+    // Polar coordinates
     float a = atan(p.y, p.x);
+    float r = length(p);
     
-    // Animate tunnel
-    float movement = uTime * uSpeed * 0.5;
+    // Tunnel mapping
+    vec2 uv = vec2(1.0 / r + uTime * uSpeed * 0.2, a / 3.14159);
     
-    // Map to UV coordinates for texture
-    vec2 uv = vec2(1.0/r + movement, a/3.14159);
-    
-    // Generate texture pattern
-    float f = snoise(uv * vec2(10.0, 20.0) * (uDepth/5.0));
+    // Grid/Architecture pattern
+    float grid = sin(uv.x * 20.0 * uDepth) * sin(uv.y * 10.0);
+    float w = fwidth(grid);
+    grid = smoothstep(-w, w, grid);
     
     // Color
     vec3 col = vec3(0.0);
     
-    // Grid lines
-    float grid = step(0.9, fract(uv.x * 5.0)) + step(0.9, fract(uv.y * 10.0));
+    // Base tunnel color
+    vec3 c1 = vec3(0.1, 0.0, 0.3); // Purple
+    vec3 c2 = vec3(0.0, 0.8, 1.0); // Cyan
     
-    // Mix colors based on pattern
-    vec3 baseColor = vec3(0.1, 0.0, 0.3); // Deep purple
-    vec3 lightColor = vec3(0.0, 0.5, 1.0); // Cyan/Blue
+    float pulse = sin(uTime + 10.0 / r) * 0.5 + 0.5;
+    col = mix(c1, c2, grid * pulse);
     
-    col = mix(baseColor, lightColor, f + grid * 0.5);
+    // Depth fog
+    col *= r * 1.5;
     
-    // Depth darkening
-    col *= r * 2.0; 
+    // Intensity control
+    col *= uLightIntensity * 2.0;
     
-    // Intensity
-    col *= (uLightIntensity / 50.0);
-
     gl_FragColor = vec4(col, 1.0);
 }
 `;
 
-
 // --- P5 Sketches ---
 
-// Synapse Sketch
+// Synapse (Cosmic Portal) Sketch
 const synapseSketch = (p) => {
     let sh;
 
     p.setup = () => {
-        let canvas = p.createCanvas(800, 384, p.WEBGL);
-        sh = p.createShader(vertShader, synapseFragShader);
+        let container = document.getElementById('synapse-demo');
+        let canvas = p.createCanvas(container.offsetWidth, container.offsetHeight, p.WEBGL);
+        canvas.parent('synapse-demo');
+        sh = p.createShader(vertShader, portalFragShader);
         p.shader(sh);
     };
 
     p.draw = () => {
-        // Get control values
-        let particleCount = parseFloat(document.getElementById('particle-slider').value);
-        let connectionDist = parseFloat(document.getElementById('distance-slider').value);
-        let mouseInfluence = parseFloat(document.getElementById('mouse-influence').value);
+        // Controls mapping
+        // Previous controls: Particle Count -> Intensity
+        // Connection Distance -> Speed
+        // Mouse Influence -> Zoom
+
+        // Safety check for elements
+        let intensity = 1.0;
+        let speed = 1.0;
+        let zoom = 0.5;
+
+        let slider1 = document.getElementById('particle-slider');
+        if (slider1) intensity = p.map(slider1.value, 50, 300, 0.5, 2.0);
+
+        let slider2 = document.getElementById('distance-slider');
+        if (slider2) speed = p.map(slider2.value, 50, 120, 0.1, 2.0);
+
+        let slider3 = document.getElementById('mouse-slider');
+        if (slider3) zoom = p.map(slider3.value, 0, 200, 0.0, 1.0);
 
         sh.setUniform('uTime', p.millis() / 1000.0);
         sh.setUniform('uResolution', [p.width, p.height]);
-        sh.setUniform('uMouse', [p.mouseX, p.mouseY]); // Mouse Y is inverted in WebGL shader usually? No, depends on coordinate system. FragCoord is bottom-left. p5 mouse is top-left.
-        // Actually for p5 WebGL, we might need to adjust mouse coords or use just relative.
-        // Let's pass raw mouse and handle in shader or assume p5 mapping.
-        // Actually p5 WebGL 0,0 is center. This is specific to geometry.
-        // But for a loose full-screen quad shader, we pass raw mouse.
-        // Correction: gl_FragCoord is (0,0) at bottom-left. p.mouseX is (0,0) at top-left.
-        sh.setUniform('uMouse', [p.mouseX, p.height - p.mouseY]);
+        sh.setUniform('uMouse', [p.mouseX, p.mouseY]);
 
-        sh.setUniform('uParticles', particleCount);
-        sh.setUniform('uConnectionDist', connectionDist);
+        sh.setUniform('uIntensity', intensity);
+        sh.setUniform('uSpeed', speed);
+        sh.setUniform('uZoom', zoom);
 
-        p.rect(0, 0, p.width, p.height); // Draw a quad to fill screen
+        p.rect(0, 0, p.width, p.height);
     };
 
     p.windowResized = () => {
-        // handle resize if needed, though containers are fixed size usually
-        // p.resizeCanvas(width, height);
+        let container = document.getElementById('synapse-demo');
+        if (container) {
+            p.resizeCanvas(container.offsetWidth, container.offsetHeight);
+        }
     };
 };
 
-// Fluids Sketch
+// Fluids (Realistic Water) Sketch
 const fluidsSketch = (p) => {
     let sh;
 
     p.setup = () => {
-        let canvas = p.createCanvas(800, 384, p.WEBGL);
-        sh = p.createShader(vertShader, fluidsFragShader);
+        let container = document.getElementById('fluids-demo');
+        let canvas = p.createCanvas(container.offsetWidth, container.offsetHeight, p.WEBGL);
+        canvas.parent('fluids-demo');
+        sh = p.createShader(vertShader, waterFragShader);
         p.shader(sh);
     };
 
     p.draw = () => {
-        let flowSpeed = parseFloat(document.getElementById('flow-slider').value);
-        let viscosity = parseFloat(document.getElementById('viscosity-slider').value);
-        let colorIntensity = parseFloat(document.getElementById('color-slider').value);
+        // Wrapper mapping
+        let speed = 1.0;
+        let blue = 1.0;
+        let complexity = 1.0;
+
+        let slider1 = document.getElementById('flow-slider');
+        if (slider1) speed = p.map(slider1.value, 1, 10, 0.2, 3.0);
+
+        let slider2 = document.getElementById('viscosity-slider'); // Mapped to complexity
+        if (slider2) complexity = p.map(slider2.value, 10, 100, 1.0, 5.0);
+
+        let slider3 = document.getElementById('color-slider'); // Mapped to Blue intensity
+        if (slider3) blue = p.map(slider3.value, 0, 100, 0.5, 1.5);
 
         sh.setUniform('uTime', p.millis() / 1000.0);
         sh.setUniform('uResolution', [p.width, p.height]);
-        sh.setUniform('uMouse', [p.mouseX, p.height - p.mouseY]);
-        sh.setUniform('uFlowSpeed', flowSpeed);
-        sh.setUniform('uViscosity', viscosity);
-        sh.setUniform('uColorIntensity', colorIntensity);
+        sh.setUniform('uMouse', [p.mouseX, p.mouseY]);
+
+        sh.setUniform('uSpeed', speed);
+        sh.setUniform('uComplexity', complexity);
+        sh.setUniform('uBlue', blue);
 
         p.rect(0, 0, p.width, p.height);
     };
+
+    p.windowResized = () => {
+        let container = document.getElementById('fluids-demo');
+        if (container) {
+            p.resizeCanvas(container.offsetWidth, container.offsetHeight);
+        }
+    };
 };
 
-// Tunnel Sketch
+// Tunnel (Geometric Portal) Sketch
 const tunnelSketch = (p) => {
     let sh;
 
     p.setup = () => {
-        let canvas = p.createCanvas(800, 384, p.WEBGL);
+        let container = document.getElementById('tunnel-demo');
+        let canvas = p.createCanvas(container.offsetWidth, container.offsetHeight, p.WEBGL);
+        canvas.parent('tunnel-demo');
         sh = p.createShader(vertShader, tunnelFragShader);
         p.shader(sh);
     };
 
     p.draw = () => {
-        let speed = parseFloat(document.getElementById('speed-slider').value);
-        let intensity = parseFloat(document.getElementById('intensity-slider').value);
-        let depth = parseFloat(document.getElementById('depth-slider').value);
+        let speed = 1.0;
+        let intensity = 1.0;
+        let depth = 1.0;
+
+        let slider1 = document.getElementById('speed-slider');
+        if (slider1) speed = p.map(slider1.value, 1, 10, 0.5, 3.0);
+
+        let slider2 = document.getElementById('intensity-slider');
+        if (slider2) intensity = p.map(slider2.value, 0, 100, 0.1, 1.5);
+
+        let slider3 = document.getElementById('depth-slider');
+        if (slider3) depth = p.map(slider3.value, 1, 10, 0.5, 2.0);
 
         sh.setUniform('uTime', p.millis() / 1000.0);
         sh.setUniform('uResolution', [p.width, p.height]);
@@ -375,5 +355,12 @@ const tunnelSketch = (p) => {
         sh.setUniform('uDepth', depth);
 
         p.rect(0, 0, p.width, p.height);
+    };
+
+    p.windowResized = () => {
+        let container = document.getElementById('tunnel-demo');
+        if (container) {
+            p.resizeCanvas(container.offsetWidth, container.offsetHeight);
+        }
     };
 };

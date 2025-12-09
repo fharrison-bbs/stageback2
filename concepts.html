@@ -84,6 +84,8 @@
             background: linear-gradient(45deg, var(--cosmic-gold), #FFA500);
             border: none;
             color: var(--midnight-black);
+            /* Keeping black text on gold button for contrast, per design usually, but user asked for white text on all buttons. Let's check user request. "ensure all text is white on all buttons". Gold background with white text might be hard to read, but I will follow instructions. */
+            color: white !important;
             font-weight: bold;
             padding: 12px 24px;
             border-radius: 8px;
@@ -260,7 +262,7 @@
             </div>
 
             <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
-                <button id="start-demos" class="glow-button">
+                <button id="start-demos" class="glow-button text-white">
                     Start All Demos
                 </button>
                 <a href="#concepts"
@@ -386,7 +388,7 @@
                                 </div>
 
                                 <div class="audio-controls">
-                                    <button id="trigger-wave" class="glow-button">
+                                    <button id="trigger-wave" class="glow-button text-white">
                                         Trigger Wave
                                     </button>
                                     <button id="reset-fluids"
